@@ -2,7 +2,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 
-lambda_value = 2
+lambda_value = 1
 
 def exponential_sample ():
 	random_number = random.uniform(0, 1)
@@ -27,11 +27,10 @@ def rejection_sampling ():
 
 x = []
 y = []
-for i in range(0, 10000):
+for i in range(0, 1000000):
 	tuple_values = rejection_sampling();
 	x.append(tuple_values[0])
 	y.append(tuple_values[1])
 plt.plot(x, y, 'bo')
 plt.xlabel('x')
 plt.show()
-#print(rejection_sampling())
