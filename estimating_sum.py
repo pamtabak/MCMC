@@ -2,8 +2,6 @@ import random
 import math
 import matplotlib.pyplot as plt
 
-k2 = 333833500
-
 def exact_sum (N):
 	value = 0
 	for i in xrange(1, N + 1):
@@ -11,10 +9,13 @@ def exact_sum (N):
 	return value
 
 def estimated_sum (n):
+	k = 0
+	for i in xrange(1, 1001):
+		k += i**(1.15)
 	value = 0
 	for i in xrange(1, n + 1):
-		value += math.log(i)/i
-	value = (k2/n) * value
+		value += (i * math.log(i))/(i**1.15)
+	value = (k/n) * value
 	return value
 
 samples = [1, 10, 100, 1000, 10000, 50000, 100000, 200000, 250000, 300000, 400000, 500000, 600000,
