@@ -3,7 +3,7 @@ import random as rm
 import matplotlib.pyplot as plt
 import math
 
-def ring (max_t):
+def prepare_ring_data ():
 	#preparing data
 	states = []
 	transitions = []
@@ -20,11 +20,14 @@ def ring (max_t):
 			else:
 				prob.append(0)
 		transitions.append(prob)
+	return (states, transitions, pi)
+
+def ring (max_t, states, transitions, pi):
 	# starting at node 0
 	pi[0] = 1
 	current_node = 0
 	for time in range (0, max_t):
-		next_node = change = np.random.choice(states,replace=True,p=transitions[current_node])
+		next_node = np.random.choice(states,replace=True,p=transitions[current_node])
 		pi = np.matmul(pi, transitions)
 		current_node = next_node
 	return pi
@@ -57,12 +60,23 @@ def generate_binary_tree ():
 				current_node += 1
 	return matrix
 
-def binary_tree (max_t):
+def binary_tree (max_t, states, transitions, pi, binary_tree):
+	# starting at node 0
+	pi[0] = 1
+	current_node = 0
+	for time in range (0, max_t):
+		next_node = np.random.choice(states,replace=True,p=transitions[current_node])
+		pi = np.matmul(pi, transitions)
+		current_node = next_node
+	return pi
+
+def prepare_binary_tree_data ():
 	#preparing data
 	states = []
 	transitions = []
 	pi = []
 	binary_tree = generate_binary_tree()
+
 	for i in range(0, 1023):
 		states.append(i)
 		pi.append(0)
@@ -82,15 +96,7 @@ def binary_tree (max_t):
 				else:
 					prob.append(0)
 		transitions.append(prob)
-	# starting at node 0
-	pi[0] = 1
-	current_node = 0
-	for time in range (0, max_t):
-		next_node = change = np.random.choice(states,replace=True,p=transitions[current_node])
-		print (next_node)
-		pi = np.matmul(pi, transitions)
-		current_node = next_node
-	return pi
+	return (states, transitions, pi, binary_tree)
 
 def create_grid_2d():
 	matrix = []
@@ -112,8 +118,7 @@ def create_grid_2d():
 			matrix[lines[l+1][element]].append(lines[l][element])
 	return matrix
 
-
-def grid_2d (max_t):
+def prepare_grid_data ():
 	#preparing data
 	states = []
 	transitions = []
@@ -136,6 +141,9 @@ def grid_2d (max_t):
 			else:
 				prob.append(0)
 		transitions.append(prob)
+	return (states, transitions, pi, grid)
+
+def grid_2d (max_t, states, transitions, pi, grid):
 	# starting at node 0
 	pi[0] = 1
 	current_node = 0
@@ -144,25 +152,79 @@ def grid_2d (max_t):
 		pi = np.matmul(pi, transitions)
 		current_node = next_node
 	return pi
-		
-grid_2d(1)			
 
-# time = [10, 100, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
-# variation = []
-# stationary_distribution = []
-# for i in range(0, 1000):
-# 	stationary_distribution.append(1.0/1000)
+def run_ring_markov_chain (time):
+	variation = []
+	stationary_distribution = []
+	for i in range(0, 1000):
+		stationary_distribution.append(1.0/1000)
 
-# for t in time:
-# 	pi = ring(t)
-# 	v = 0
-# 	for i in range (0, len(pi)):
-# 		v += math.fabs ((stationary_distribution[i] - pi[i]))
-# 	v = v/2
-# 	variation.append(v)
-# plt.plot(variation, time, 'ro')
-# plt.xscale('log')
-# plt.yscale('log')
-# plt.xlabel('Variacao')
-# plt.ylabel('Tempo (discreto)')
-# plt.show()
+	ring_data   = prepare_ring_data()
+	states      = ring_data[0]
+	transitions = ring_data[1]
+	pi          = ring_data[2]
+
+	for t in time:
+		print("working at " + str(t))
+		pi = ring(t, states, transitions, pi)
+		v = 0
+		for i in range (0, len(pi)):
+			v += math.fabs ((stationary_distribution[i] - pi[i]))
+		v = v/2
+		variation.append(v)
+		print(v)
+	return variation
+
+def run_binary_tree_markov_chain (time):
+	data   		= prepare_binary_tree_data()
+	states 		= data[0]
+	transitions = data[1]
+	init_pi     = data[2]
+	binary_tree_data = data[3]
+	variation = []
+	stationary_distribution = []
+	for i in range(0, 1023):
+		stationary_distribution.append(len(binary_tree_data[i])*1.0/2044)
+	for t in time:
+		print("working at " + str(t))
+		pi = binary_tree (t, states, transitions, init_pi, binary_tree_data)
+		v = 0
+		for i in range (0, len(pi)):
+			v += math.fabs ((stationary_distribution[i] - pi[i]))
+		v = v/2
+		variation.append(v)
+		print(v)
+	return variation
+
+def run_grid_markov_chain (time):
+	data = prepare_grid_data()
+	states = data[0]
+	transitions = data[1]
+	pi = data[2]
+	grid = data[3]
+	variation = []
+	stationary_distribution = []
+	for i in range(0, 1024):
+		stationary_distribution.append(len(grid[i])*1.0/3968)
+	for t in time:
+		print("working at " + str(t))
+		pi = grid_2d (t, states, transitions, pi, grid)
+		v = 0
+		for i in range (0, len(pi)):
+			v += math.fabs ((stationary_distribution[i] - pi[i]))
+		v = v/2
+		variation.append(v)
+		print(v)
+	return variation
+
+
+time = [1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000]
+variation = run_grid_markov_chain(time)
+print(variation)
+plt.plot(variation, time, 'ro')
+plt.title('Grid 2D')
+#plt.xscale('log')
+plt.yscale('log')
+plt.xlabel('Variacao')
+plt.ylabel('Tempo (discreto)')
+plt.show()
