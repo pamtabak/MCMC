@@ -30,6 +30,7 @@ def ring (max_t, states, transitions, pi):
 		next_node = np.random.choice(states,replace=True,p=transitions[current_node])
 		pi = np.matmul(pi, transitions)
 		current_node = next_node
+
 	return pi
 
 def generate_binary_tree ():
@@ -162,11 +163,11 @@ def run_ring_markov_chain (time):
 	ring_data   = prepare_ring_data()
 	states      = ring_data[0]
 	transitions = ring_data[1]
-	pi          = ring_data[2]
+	first_pi    = ring_data[2]
 
 	for t in time:
 		print("working at " + str(t))
-		pi = ring(t, states, transitions, pi)
+		pi = ring(t, states, transitions, first_pi)
 		v = 0
 		for i in range (0, len(pi)):
 			v += math.fabs ((stationary_distribution[i] - pi[i]))
@@ -200,7 +201,7 @@ def run_grid_markov_chain (time):
 	data = prepare_grid_data()
 	states = data[0]
 	transitions = data[1]
-	pi = data[2]
+	first_pi = data[2]
 	grid = data[3]
 	variation = []
 	stationary_distribution = []
@@ -208,7 +209,7 @@ def run_grid_markov_chain (time):
 		stationary_distribution.append(len(grid[i])*1.0/3968)
 	for t in time:
 		print("working at " + str(t))
-		pi = grid_2d (t, states, transitions, pi, grid)
+		pi = grid_2d (t, states, transitions, first_pi, grid)
 		v = 0
 		for i in range (0, len(pi)):
 			v += math.fabs ((stationary_distribution[i] - pi[i]))
@@ -218,12 +219,12 @@ def run_grid_markov_chain (time):
 	return variation
 
 
-time = [1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000]
-variation = run_grid_markov_chain(time)
+time = [10, 100, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000]
+variation = run_ring_markov_chain(time)
 print(variation)
 plt.plot(variation, time, 'ro')
-plt.title('Grid 2D')
-#plt.xscale('log')
+plt.title('ANEL')
+plt.xscale('log')
 plt.yscale('log')
 plt.xlabel('Variacao')
 plt.ylabel('Tempo (discreto)')
